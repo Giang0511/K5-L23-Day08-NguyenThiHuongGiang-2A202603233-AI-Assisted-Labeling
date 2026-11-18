@@ -1,13 +1,13 @@
 # Thông tin học viên
 
-- Họ và tên: <<>>
-- MSHV: <<>>
-- Lớp (L2 / L3 / khác): <<>>
-- Tài khoản GitHub: <<>>
-- Repo bài nộp (URL): <<>>
+- Họ và tên: Nguyễn Thị Hương Giang
+- MSHV: 2A202603233
+- Lớp (L2 / L3 / khác): L2
+- Tài khoản GitHub: Giang0511
+- Repo bài nộp (URL): https://github.com/Giang0511/K5-L23-Day09-NguyenThiHuongGiang-2A202603233-AutoQC-Pipeline-Lab
 - Commit chốt bài (hash): <<>>
-- Máy: <<hệ điều hành, GPU (CUDA / MPS / không có)>>
-- CVAT (Docker): <<phiên bản, ví dụ v2.81.0>>
+- Máy: Windows 11 Pro, Intel Core i7-11850H, RAM 64GB, NVIDIA T1200 Laptop GPU 4GB, CUDA.
+- CVAT (Docker): v2.74.1
 
 ## Kết quả tóm tắt (điền cuối bài; số lấy từ `submission/qc/*`, kèm mẫu số)
 
