@@ -1,8 +1,6 @@
 # Báo cáo Day 08 — 2A202603233 - Nguyễn Thị Hương Giang
 
 > Một file duy nhất cho cả bài (đã gộp recipe, QC và ghi chú cá nhân). Mọi con số kèm **mẫu số** và nguồn (file nào). Viết bằng lời của bạn.
->
-> **Bản nháp mục 1–4 đã điền đủ.** Đọc lại, sửa bằng lời của bạn và đối chiếu với `review_stats.md` trước khi nộp. Mục 5–8 là các Part sau.
 
 ## 1. Model và recipe (Part 2–3)
 
@@ -75,30 +73,45 @@ Mask tạo bằng `scripts/sam2_points.py` với SAM 2.1 (`sam2.1_b.pt`), click 
     1. SAM không tách sạch ranh giữa người và xe khi họ ngồi sát nhau: cả ba mask đều còn lem khoảng 3%. Guideline chỉ nêu sai số biên ≤ ~3 px chứ chưa nói mức lem vào vật khác chấp nhận được.
     2. **Hàng hoá có thuộc mask xe không:** chốt là **có**. Hàng nằm trên xe thì tô vào mask xe (img_003: mask gồm trái cây trong thùng xe là đúng).
     3. **Người ngồi trong khung xe:** chốt khi tô mask xe thì **không tô người** ở trong khung xe (người là vật riêng, theo guideline mục 5); người đó vẫn được gán `person` riêng, và vùng người được loại khỏi mask xe bằng click âm.
-  - Hai quyết định (2) và (3) sẽ ghi vào `calibration_decisions.csv` và `guideline_v1.1_calibrated.md` ở Part 6.
+  - Hai quyết định (2) và (3) đã ghi vào `calibration_decisions.csv` (CAL-02, CAL-03) và `guideline_v1.1_calibrated.md`.
 
 ## 6. Calibration (Part 6)
 
-- Số quyết định: <<>> (`calibration_decisions.csv`); quan trọng nhất (dẫn `CAL-xx`): <<>>
-- Quy tắc mới đã vào `guideline_v1.1_calibrated.md`: <<>>
-- Nguyên nhân gốc: <<guideline mơ hồ / chưa nắm quy tắc / máy>>
+- Số quyết định: 9 (`calibration_decisions.csv`): 2 `loi_may` (CAL-01, CAL-03), 5 `cau_hoi_mo` (CAL-02, 04, 07, 08, 09), 1 `bay_lot` (CAL-05), 1 `can_review` (CAL-06). Trong đó 7/9 thành quy tắc ở `guideline_v1.1_calibrated.md` (CAL-02, 03, 04, 06, 07, 08, 09; CAL-09 chỉ xác nhận lại mục 4.2.3 của v1.0, chưa có ca thực tế trong batch) và 2/9 không đổi guideline (CAL-01: lỗi máy; CAL-05: lỗi quy trình của tôi). Câu hỏi mở số 4 (người thấp thoáng trong xe ba bánh có mui, ngưỡng 20%) chưa chốt vì chưa có ca đo được trong 24 ảnh batch.
+- Quyết định quan trọng nhất (dẫn `CAL-xx`): **CAL-01.** YOLOE gán `three_wheeler` cho 4 loại xe khác nhau (`truck` ở img_003, `motorbike` ở img_009, `car` ở img_013, `bus` ở img_018), còn YOLO26 thì gọi xe ba bánh là `car` (img_008). Tức là với lớp `three_wheeler`, máy phần lớn hoặc không bắt được, hoặc bắt nhầm sang lớp khác. Đây cũng là lỗi máy ảnh hưởng nhiều nhất tới công sửa: `three_wheeler` có 26/39 box máy bị xoá (≈ 67%, mục 2), cao nhất trong các lớp. Vì lỗi nằm ở máy chứ không ở định nghĩa lớp (mục 2 và 4.3 của v1.0 đã đủ), tôi không đổi guideline mà sửa tay khi duyệt, bằng cách đếm số bánh nhìn thấy.
+- Quy tắc mới đã vào `guideline_v1.1_calibrated.md`: xe máy điện / xe đạp điện gán `motorbike` (CAL-06, img_025); cụm xe sát nhau có box từng xe cao dưới 20 px thì một `ignore_region` (CAL-07, img_024); ảnh đêm xe sát khít thì giữ từng box nếu xác định được biên, nếu không thì gộp `ignore_region` (CAL-08, img_029); mask: hàng nằm trên xe thuộc mask xe, hàng nhô quá ~20% chiều dài xe thì không (CAL-02, img_003); mask: không tô người trong khung xe vào mask xe (CAL-03, img_003/013/017); không đặt ngưỡng `conf` tối thiểu, mọi box đều phải nhìn ảnh (CAL-04, img_014/028).
+- Nguyên nhân gốc (theo cột `nguon` và `quyet_dinh` trong `calibration_decisions.csv`):
+  - **Guideline mơ hồ (v1.0 chưa có quy tắc):** CAL-02 (hàng hoá trên xe có thuộc mask không), CAL-04 (có đặt ngưỡng `conf` tối thiểu không), CAL-06 (xe máy điện / xe đạp điện), CAL-07 (cụm xe đỗ dày gần camera), CAL-08 (box chồng nhau trong ảnh đêm), CAL-09 (kính xe thuộc mask không). Đây là các câu hỏi mở của v1.0 nên phải thêm quy tắc vào v1.1.
+  - **Máy:** CAL-01 (YOLOE gán `three_wheeler` cho xe khác, YOLO26 gọi xe ba bánh là `car`): lớp đã định nghĩa đủ ở mục 2 và 4.3 của v1.0 nên không đổi guideline, chỉ sửa tay khi duyệt. CAL-03 (SAM lem khoảng 3% vào người ngồi trong khung xe): lỗi do máy, nhưng v1.0 cũng chưa nói người trong khung xe có thuộc mask xe không, nên tôi thêm quy tắc vào v1.1.
+  - **Quy trình của tôi:** CAL-05 (4 bẫy lọt: 2 `missing`, 1 `loose`, 1 `extra`): guideline đã đủ, lỗi nằm ở cách tôi duyệt nên sửa bằng quy trình (ba quy tắc ở mục 4), không đổi guideline.
 
 ## 7. QC và quyết định (Part 6)
 
-- Mẫu: <<n>> ảnh (<<m>> ảnh `can_review` + <<k>> ngẫu nhiên, seed 42); người kiểm: bạn (**hạn chế**: bạn vừa là người duyệt).
-- Lỗi theo **đối tượng**: <<.../... = ...%>> · theo **ảnh**: <<.../... = ...%>> (ngưỡng Release ≤ 2%)
-- Top lỗi (trong: bỏ sót, thừa, sai lớp, sai vị trí/kích thước, sai thuộc tính, sai mask) + một ảnh ví dụ mỗi loại: <<>>
-- **Giới hạn mẫu nhỏ** (cận trên 95% trong `qc_report_auto.md`): <<>>
-- Script kiểm được / không kiểm được (ví dụ ôm sát, cùng bỏ sót với máy, theo checklist thật): <<>>
+- Mẫu: 8 ảnh (3 ảnh `can_review` + 5 ngẫu nhiên, seed 42), 232 đối tượng; người kiểm: tôi (**hạn chế**: tôi vừa là người duyệt nên có thể bị neo vào nhãn đã duyệt).
+- Lỗi theo **đối tượng**: 10/232 = 4.3% · theo **ảnh**: 7/8 = 87.5% (ngưỡng Release ≤ 2%). Nguồn: `qc/qc_report_auto.md`.
+- Top lỗi (trong: bỏ sót, thừa, sai lớp, sai vị trí/kích thước, sai thuộc tính, sai mask): thừa 6 (img_003, img_004, img_008); sai vị trí/kích thước 2 (img_003, img_008); sai lớp 2 (img_013, img_018); bỏ sót, sai thuộc tính, sai mask: 0 lỗi ghi nhận.
+- **Giới hạn mẫu nhỏ** (cận trên 95% trong `qc_report_auto.md`): với 7/8 ảnh lỗi, cận trên 95% (Wilson) của tỉ lệ ảnh lỗi thật là 98%. Mẫu 8 ảnh quá nhỏ để chứng minh ngưỡng 2%: ngay cả khi 0/8 ảnh lỗi thì cận trên vẫn là 32% (kết quả của lần chạy `qc_report.py` khi phiếu còn trống), nên kết quả này chỉ cho biết lô chưa đạt, không đo được chính xác tỉ lệ lỗi thật.
+- Script kiểm được: tên file, lớp có trong taxonomy, box nằm trong ảnh, đủ ảnh được giao, các số đo accepted/edited/deleted/added và độ lệch giữa hai bộ nhãn. Không kiểm được: box có ôm sát vật thật không, lớp có đúng thực tế không, vật mà cả tôi lẫn máy cùng bỏ sót, và tôi có theo checklist thật hay không. Vì vậy số lỗi QC phụ thuộc vào mắt của một người kiểm (là tôi).
 
-**Quyết định: <<Release / Hold / Rework>>**, ngày <<YYYY-MM-DD>>. Lý do (đi theo Hold → Rework → Release): <<>>
-Nếu Rework / Hold, việc cần làm tiếp: <<>>
+| Điều kiện trong cây quyết định | Số liệu của tôi | Thoả điều kiện? |
+|---|---|---|
+| 1. Guideline còn câu hỏi chưa chốt / dữ liệu hỏng | 1 câu chưa chốt (câu 4); 0 ảnh hỏng | có |
+| 2. Ảnh lỗi > 2% | 7/8 = 87.5% | có |
+| 2. Một loại lỗi lặp lại (≥ 3 lỗi và ≥ 50%) | `thua` 6/10 = 60% | có |
+| 2. Bắt bẫy < 80% | 8/12 = 66.7% | có |
+
+Script `qc_report.py` (chạy với `--guideline-gap 1`) gợi ý **HOLD**; đó chỉ là gợi ý, quyết định do tôi xác nhận.
+
+**Quyết định: Hold**, ngày 2026-11-19. Lý do (đi theo Hold → Rework → Release):
+Câu 1 (Hold): có. Guideline v1.1 còn 1 câu hỏi mở chưa chốt (câu 4, ngưỡng "còn thấy ≥ 20%" của người trong xe ba bánh có mui) vì trong 24 ảnh batch không có ca nào đo được. Câu hỏi này ảnh hưởng tới việc gán `person`, nên chưa thể coi nhãn là ổn định. Vì cây dừng ở câu đầu tiên đúng nên quyết định là Hold. Ghi thêm: nếu câu 4 được chốt thì các điều kiện của Rework (ảnh lỗi 7/8 = 87.5% > 2%, lỗi `thua` 6/10 = 60%, bắt bẫy 8/12 = 66.7% < 80%) vẫn thỏa, nên lô sẽ chuyển sang Rework chứ không thể Release.
+Việc cần làm tiếp: (1) tìm hoặc chụp thêm ca người trong xe ba bánh có mui rồi chốt câu 4; (2) sửa các lỗi đã tìm thấy ở QC; (3) lấy mẫu QC mới và đo lại.
 
 ## 8. Ghi chú cá nhân
 
-- **Dùng AI để làm bài** (công cụ nào, việc gì, kiểm tra thế nào; "không dùng" nếu không): <<>>
-- Gold có bị nhiễm không (bạn có nhìn pre-label hay hỏi AI trước khi gán xong)? <<không / có, như sau: ...>>
-- Máy / GPU / CVAT dùng; vướng mắc cài đặt: <<>>
-- Dùng cache `data/cache/` thay vì tự chạy? <<không / có, vì ...>>
-- Lỗi / bug script đã gặp (nếu có): <<>>
-- Một điều bạn làm khác lần sau: <<>>
+- **Dùng AI để làm bài** (công cụ nào, việc gì, kiểm tra thế nào):
+- Claude (Anthropic, claude.ai): hướng dẫn quy trình và lệnh theo tài liệu của repo; giải thích lỗi môi trường; góp ý chỗ chưa chặt trong bản nháp guideline v1.1 và `taxonomy.json`; hỗ trợ cấu trúc báo cáo. 
+- Công cụ khác (soạn nháp guideline v1.1 và báo cáo mục 1–4, nếu có): ChatGPT hỗ trợ chỉnh chính tả và hoàn thiện báo cáo.
+- Máy / GPU / CVAT dùng: Windows 11 Pro, Intel Core i7-11850H, RAM 64 GB, NVIDIA T1200 Laptop GPU 4 GB; các lần chạy model trong `work/runs.csv` ghi thiết bị `cpu`. CVAT v2.74.1 chạy bằng Docker (khác bản 2.81 trong tài liệu của lab). Vướng mắc cài đặt: `download_models.py` báo `No module named 'ultralytics'` vì venv dùng chung với bài Day09 chưa cài `requirements.txt`; `threshold_sweep.py` báo thiếu file `pre.coco.json` vì tôi chưa chạy bước `--split all --conf 0.05` ở cuối Part 2. Cả hai đều do thứ tự thao tác, đã xử lý bằng cách cài thư viện và chạy lại các lệnh còn thiếu.
+- Dùng cache `data/cache/` thay vì tự chạy? Không: tôi tự chạy r06 (YOLO26m) và r07 (YOLOE-26s) trên cả 36 ảnh ở ngưỡng 0.05.
+- Lỗi / bug script đã gặp (nếu có): không sửa script nào; các lỗi gặp đều nằm ở môi trường hoặc thứ tự thao tác như nêu ở trên.
+s
