@@ -1,8 +1,6 @@
 # Label contract — Phố châu Á — BỔ SUNG v1.1 — 2A202603233 - Nguyễn Thị Hương Giang
 
 > **Chỉ viết phần thay đổi so với v1.0.** Chốt các câu hỏi mở ở mục 6 của v1.0 (hoặc nói rõ câu nào chưa chốt, vì sao) và thêm quy tắc rút ra từ lỗi của máy và của tôi. Mỗi ca khó có ảnh ví dụ và khớp một dòng trong `qc/calibration_decisions.csv`.
->
-> **Bản nháp đã điền đủ.** Đọc lại và sửa bằng lời của bạn trước khi nộp.
 
 ## 1. Câu hỏi mở đã chốt (từ mục 6 của v1.0)
 
