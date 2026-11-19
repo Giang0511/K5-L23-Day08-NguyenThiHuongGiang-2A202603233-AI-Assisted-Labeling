@@ -1,0 +1,12 @@
+image,object_id,error_type,reviewer,note
+img_003.jpg,,sai_vi_tri_kich_thuoc,Giang,"box không ôm sát vật"
+img_003.jpg,,thua,Giang,"gán thừa nhãn three_wheeler"
+img_004.jpg,,thua,Giang,"thừa box car"
+img_004.jpg,,thua,Giang,"thừa box person"
+img_008.jpg,,sai_vi_tri_kich_thuoc,Giang,"box không ôm sát vật"
+img_008.jpg,,thua,Giang,"thừa box person"
+img_013.jpg,,sai_lop,Giang,"nhãn car bị gán thành truck"
+img_014.jpg,,thua,Giang,"thừa box person"
+img_018.jpg,,sai_lop,Giang,"motorbike riêng lẻ bị gán nhầm thành ignore_region"
+img_021.jpg,,thua,Giang,"thừa box car"
+img_035.jpg,,khong,Giang,"đã kiểm đủ 4 bước không thấy lỗi"

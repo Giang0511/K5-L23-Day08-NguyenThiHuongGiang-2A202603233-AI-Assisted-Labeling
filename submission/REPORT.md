@@ -61,12 +61,21 @@
 
 ## 5. Mask SAM cho 3 vật (Part 5)
 
+Mask tạo bằng `scripts/sam2_points.py` với SAM 2.1 (`sam2.1_b.pt`), click dương/âm trên ảnh gốc. "Số click" là tổng dương + âm của lần chạy cuối. Tỉ lệ "lem" là ước chừng bằng mắt, tôi không đo bằng số.
+
 | Ảnh | SAM (phiên bản) | Số click | Mask gồm người lái / hàng hoá? | Lỗi quan sát | File trong `masks/` |
 |---|---|---|---|---|---|
-| <<img_0xx>> | <<>> | <<>> | <<>> | <<>> | <<>> |
+| img_013 (tuk-tuk có người lái) | SAM 2.1 (`sam2.1_b.pt`) | 9 (3 dương + 6 âm), qua 3 lần chạy | Mask xe vẫn **lem vào người lái** (~3%); không có hàng hoá đáng kể | Lần 1 (1 dương) mask lẫn người lái; thêm click âm lên người thì giảm nhưng không hết, vì người ngồi sát thân xe. Còn vài mảng thủng nhỏ ở khung xe | `submission/masks/tuktuk_img013.jpg` |
+| img_003 (xe ba gác chở hàng) | SAM 2.1 (`sam2.1_b.pt`) | 6 (3 dương + 3 âm), qua 2 lần chạy | Mask **gồm hàng hoá** (trái cây trong thùng xe); **lem vào người ngồi trong xe** (~3%) | Lần 1 (2 dương + 2 âm) đã tô hết xe nhưng lem vào người; thêm 1 dương và 1 âm vẫn lem, vì người và hàng hoá cùng nằm trong khung xe | `submission/masks/three-wheeler_img003.jpg` |
+| img_017 (tuk-tuk nằm sát xe khác và người đi bộ) | SAM 2.1 (`sam2.1_b.pt`) | 4 (2 dương + 2 âm), 1 lần chạy | Không có hàng hoá; **lem vào người đi bộ** đứng trước xe (~3%) | Đạt ngay lần đầu nhờ 2 điểm âm đặt ở xe liền kề và nền; mask thân xe còn loang lổ, không đều | `submission/masks/tuktuk_img017.jpg` |
 
-- Đối chiếu guideline mục 4.2: quy tắc nào giúp, quy tắc nào thiếu? <<>>
-- *(Tuỳ chọn)* Interactor SAM trong CVAT: làm được / không (lỗi gì, đã thử gì); khác gì offline: <<>>
+- Đối chiếu guideline mục 4.2:
+  - **Giúp được:** quy tắc "người và xe là hai vật riêng" cho tôi biết phải đặt click âm lên người lái / người ngồi; quy tắc "hai vật chạm nhau thì mỗi vật một polygon, không chồng lên nhau" giúp ở img_017, nơi tôi đặt điểm âm lên chiếc xe liền kề.
+  - **Chưa đủ trong guideline v1.0, và quyết định của tôi:**
+    1. SAM không tách sạch ranh giữa người và xe khi họ ngồi sát nhau: cả ba mask đều còn lem khoảng 3%. Guideline chỉ nêu sai số biên ≤ ~3 px chứ chưa nói mức lem vào vật khác chấp nhận được.
+    2. **Hàng hoá có thuộc mask xe không:** chốt là **có**. Hàng nằm trên xe thì tô vào mask xe (img_003: mask gồm trái cây trong thùng xe là đúng).
+    3. **Người ngồi trong khung xe:** chốt khi tô mask xe thì **không tô người** ở trong khung xe (người là vật riêng, theo guideline mục 5); người đó vẫn được gán `person` riêng, và vùng người được loại khỏi mask xe bằng click âm.
+  - Hai quyết định (2) và (3) sẽ ghi vào `calibration_decisions.csv` và `guideline_v1.1_calibrated.md` ở Part 6.
 
 ## 6. Calibration (Part 6)
 
